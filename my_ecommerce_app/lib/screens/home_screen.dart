@@ -4,11 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import 'cart_screen.dart';
-
 import 'admin_panel_screen.dart';
 import '../models/product_model.dart';
 import '../widgets/product_card.dart';
 import '../screens/product_detail_screen.dart';
+import 'order_history_screen.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -106,27 +106,45 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        //using the user's email if logged in
         title: const Text('Manga & Comics Shop'),
         centerTitle: true,
         actions: [
+          // 1. Cart Icon: Hide if user is admin
+          if (_userRole != 'admin')
+            Consumer<CartProvider>(
+              builder: (context, cart, child) {
+                return Badge(
+                  label: Text(cart.itemCount.toString()),
+                  isLabelVisible: cart.itemCount > 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.shopping_cart),
+                    onPressed: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => const CartScreen()),
+                      );
+                      setState(() {});
+                    },
+                  ),
+                );
+              },
+            ),
 
-          Consumer<CartProvider>(
-            builder: (context, cart, child) {
-              return Badge(
-                label: Text(cart.itemCount.toString()),
-                isLabelVisible: cart.itemCount > 0,
-                child: IconButton(
-                  icon: const Icon(Icons.shopping_cart),
-                  onPressed: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const CartScreen()),
-                    );
-                    setState(() {});
-                  },
-                ),
-              );
-            },
-          ),
+          // 2. Orders Icon: Hide if user is admin
+          if (_userRole != 'admin')
+            IconButton(
+              icon: const Icon(Icons.receipt_long), // A "receipt" icon
+              tooltip: 'My Orders',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const OrderHistoryScreen(),
+                  ),
+                );
+              },
+            ),
+
+          // 3. Admin Icon: Show only if user is admin (existing logic)
           if (_userRole == 'admin')
             IconButton(
               icon: Icon(Icons.admin_panel_settings, color: theme.colorScheme.onSurface,),
@@ -137,6 +155,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
+
+          // 4. Logout Icon (Visible for all)
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
@@ -144,7 +164,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      // ... (body remains the same)
       body: Column(
         children: [
           Padding(

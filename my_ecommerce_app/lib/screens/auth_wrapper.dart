@@ -2,7 +2,7 @@ import 'package:my_ecommerce_app/screens/home_screen.dart'; //
 import 'package:my_ecommerce_app/screens/login_screen.dart'; //
 import 'package:firebase_auth/firebase_auth.dart'; //
 import 'package:flutter/material.dart'; //
-
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -13,6 +13,12 @@ class AuthWrapper extends StatelessWidget {
       // The stream automatically emits User or null [cite: 296, 314]
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+
+        // Once the connection is active (meaning the initial auth check is done)
+        if (snapshot.connectionState == ConnectionState.active) {
+          // Remove the splash screen after the auth check is complete
+          FlutterNativeSplash.remove();
+        }
 
         // 1. Show a loading spinner if we are waiting for the initial auth check [cite: 302, 316]
         if (snapshot.connectionState == ConnectionState.waiting) {

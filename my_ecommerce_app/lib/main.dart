@@ -27,7 +27,6 @@ void main() async {
   );
 
   // 5. Remove the splash screen after the app is ready
-  FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatelessWidget {
